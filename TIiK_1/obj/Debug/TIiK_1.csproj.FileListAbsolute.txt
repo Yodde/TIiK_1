@@ -1,0 +1,6 @@
+c:\users\szymek\documents\visual studio 2015\Projects\TIiK_1\TIiK_1\bin\Debug\TIiK_1.exe.config
+c:\users\szymek\documents\visual studio 2015\Projects\TIiK_1\TIiK_1\bin\Debug\TIiK_1.exe
+c:\users\szymek\documents\visual studio 2015\Projects\TIiK_1\TIiK_1\bin\Debug\TIiK_1.pdb
+c:\users\szymek\documents\visual studio 2015\Projects\TIiK_1\TIiK_1\obj\Debug\TIiK_1.csprojResolveAssemblyReference.cache
+c:\users\szymek\documents\visual studio 2015\Projects\TIiK_1\TIiK_1\obj\Debug\TIiK_1.exe
+c:\users\szymek\documents\visual studio 2015\Projects\TIiK_1\TIiK_1\obj\Debug\TIiK_1.pdb
