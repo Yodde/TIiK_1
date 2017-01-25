@@ -17,7 +17,7 @@ namespace TIiK_1 {
         static void Main(string[] args) {
             //lz78Dcitionary.Add("", -1);
 
-            AddFirstToDict(lz78Dcitionary);
+            ClearToUseAgain(lz78Dcitionary);
 
             //SortedDictionary<char, int> litPlDic = new SortedDictionary<char, int>();
             //SortedDictionary<char, int> infPlDic = new SortedDictionary<char, int>();
@@ -63,22 +63,103 @@ namespace TIiK_1 {
             //Console.WriteLine("Informatycze angielskie");
             //WriteFrequency(infEngDic, infEngLenght);
 
+            Menu();
 
 
-            string barbara = LoadFromFile(@"barbara.txt");
-            string compressed = CompressString(barbara);
-            Console.WriteLine(compressed);
-            PrintDictionary(lz78Dcitionary);
-            WriteToFile(@"barbara_compress.txt", compressed);
-
-            ClearToUseAgain(lz78Dcitionary);
-            //CompressString(litPlS);
-
-            string compressedFile = LoadFromFile(@"barbara_compress.txt");
+            //string barbara = LoadFromFile(@"barbara_compress.txt");
+            //ClearToUseAgain(orderedDict);
+            //RebuildDictionary(orderedDict, barbara);
+            //PrintDictionary(orderedDict);
+            //string text = GetStringFromKeys(orderedDict);
+            //Console.WriteLine(text);
 
 
-            Console.ReadLine();
+            //string compressed = CompressString(barbara);
+            //Console.WriteLine(compressed);
+            //PrintDictionary(lz78Dcitionary);
+            //WriteToFile(@"barbara_compress.txt", compressed);
+
+            //ClearToUseAgain(lz78Dcitionary);
+            ////CompressString(litPlS);
+
+            //string compressedFile = LoadFromFile(@"barbara_compress.txt");
+
+
+            //Console.ReadLine();
         }
+
+        public static void Menu() {
+            bool go = true;
+            while (go) {
+                int i = -1;
+                Console.WriteLine("\nKompresuj: 1 \nDekompresuj: 2\nWypisz: 3\nWyjście: 0\n");
+                string input = Console.ReadLine();
+                if (!int.TryParse(input, out i))
+                    continue;
+                switch (i) {
+                    case 1: {
+                            ClearToUseAgain(lz78Dcitionary);
+                            Console.WriteLine("Wpisz nazwę pliku");
+                            string name = Console.ReadLine();
+                            string text = LoadFromFile(name+".txt");
+                            if (string.IsNullOrEmpty(text)) {
+                                Console.WriteLine("Pusty plik, lub taki nie istnieje");
+                                Console.ReadKey();
+                                break;
+                            }
+                            string compressed = CompressString(text);
+                            Console.WriteLine(compressed);
+                            PrintDictionary(lz78Dcitionary);
+                            string compressedName = string.Format("{0}_comp.txt", name);
+                            WriteToFile(compressedName, compressed);
+                            Console.WriteLine("Zapisano do pliku {0}", compressedName);
+                            Console.ReadKey();
+                            break;
+                        }
+                    case 2: {
+                            Console.WriteLine("Wpisz nazwę pliku");
+                            string name = Console.ReadLine();
+                            string code = LoadFromFile(name+".txt");
+                            if (string.IsNullOrEmpty(code)) {
+                                Console.WriteLine("Pusty plik, lub taki nie istnieje");
+                                Console.ReadKey();
+                                break;
+                            }
+                            ClearToUseAgain(orderedDict);
+                            RebuildDictionary(orderedDict, code);
+                            PrintDictionary(orderedDict);
+                            string text = GetStringFromKeys(orderedDict);
+                            Console.WriteLine(text);
+                        }
+                        break;
+
+                    case 3: {
+                            int length;
+                            SortedDictionary<char, int> lit = new SortedDictionary<char, int>();
+                            Console.WriteLine("Podaj nazwę pliku");
+                            string name = Console.ReadLine();
+                            string text = LoadFromFile(name+".txt");
+                            if (string.IsNullOrEmpty(text)) {
+                                Console.WriteLine("Pusty plik, lub taki nie istnieje");
+                                Console.ReadKey();
+                                break;
+                            }
+                            lit = AddToDic(text);
+                            length = WriteAndCount(lit);
+                            WriteFrequency(lit, length);
+                            break;
+                        }
+                    case 0:
+                        go = false;
+                        break;
+                    default:
+                        Console.WriteLine("Brak takiej opcji");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
         public static void ClearToUseAgain(OrderedDictionary dict) {
             dict.Clear();
             AddFirstToDict(dict);
@@ -105,13 +186,18 @@ namespace TIiK_1 {
         }
         public static string LoadFromFile(string path) {
             string str = "";
-            using (StreamReader reader = new StreamReader(path)) {
-                str = reader.ReadToEnd();
+            try {
+                using (StreamReader reader = new StreamReader(path)) {
+                    str = reader.ReadToEnd();
+                }
+            }
+            catch (FileNotFoundException) {
+                return null;
             }
             return str;
         }
 
-        public static void WriteToFile(string path,string str) {
+        public static void WriteToFile(string path, string str) {
             using (StreamWriter writer = new StreamWriter(path)) {
                 foreach (var c in str) {
                     writer.Write(c);
@@ -138,7 +224,6 @@ namespace TIiK_1 {
             foreach (var d in dic) {
                 double dFrequency = KeyFrequency(d.Value, numberOfLetters);
                 list.Add(new Letters { letter = d.Key, frequency = dFrequency, count = d.Value });
-                //Console.WriteLine("Liera: {0}\tProcent: {1}%\t", d.Key, dFrequency*100.0);
             }
             List<Letters> sorted = list.OrderByDescending(l => l.frequency).ToList();
             foreach (var l in sorted) {
@@ -227,7 +312,7 @@ namespace TIiK_1 {
                     throw new IndexOutOfRangeException("Key index cannot be zero");
                 lz78Dcitionary.Add(key, subkeyIndex);
                 //
-                AppendString(key.Substring(key.Length-1), subkeyIndex);
+                AppendString(key.Substring(key.Length - 1), subkeyIndex);
                 //
 
                 return true;
@@ -248,12 +333,10 @@ namespace TIiK_1 {
         }
 
         public static bool ContainsKey(OrderedDictionary dict, string key) {
-            for (int i = 1; i < dict.Count; i++) {
-                if (dict.Cast<DictionaryEntry>().ElementAt(i).Key.ToString() == key) {
-                    return true;
-                }
-            }
+            if (dict.Contains(key))
+                return true;
             return false;
+
         }
         public static void AppendString(string key, int index) {
             outBuilder.Append("(");
@@ -267,10 +350,72 @@ namespace TIiK_1 {
             Console.WriteLine("  {0}  |  {1}", 'i', 'w');
             Console.WriteLine("  {0} | {1}", "--", "--");
             for (int i = 1; i < dict.Count; i++) {
-                string key = dict.Cast<DictionaryEntry>().ElementAt(i).Key.ToString();
+                string key = GetKeyFromDictionary(dict, i);
                 string value = dict[i].ToString();
-                Console.WriteLine("  {0}  |  {1}", value,key);
+                Console.WriteLine("  {0}  |  {1}", value, key);
             }
+        }
+
+        public static string GetKeyFromDictionary(OrderedDictionary dict, int index) {
+            return dict.Cast<DictionaryEntry>().ElementAt(index).Key.ToString();
+        }
+        public static void AddRowToDictionary(OrderedDictionary dict, int index, string key) {
+            if (index == 0) {
+                dict.Add(key, index);
+            }
+            else {
+                string pre = GetKeyFromDictionary(dict, index);
+                dict.Add(pre + key, index);
+            }
+        }
+        public static void RebuildDictionary(OrderedDictionary dict, string compressedText) {
+            string key = "";
+            string longIndex = "";
+            int index = 0;
+            const char openB = '(';
+            const char closeB = ')';
+            const char comma = ',';
+            bool isBraceOpened = false;
+            bool isNumbertaken = false;
+            bool isKeyTaken = false;
+            foreach (var c in compressedText) {
+                if (isKeyTaken && isNumbertaken && isBraceOpened && c == closeB) {
+                    AddRowToDictionary(dict, index, key);
+                    isBraceOpened = false;
+                    isNumbertaken = false;
+                    isKeyTaken = false;
+                    key = "";
+                    longIndex = "";
+                    index = 0;
+                }
+                if (c == openB && !isBraceOpened) {
+                    isBraceOpened = true;
+                    continue;
+                }
+                if (isBraceOpened) {
+                    if (!isNumbertaken) {
+                        if (c != comma)
+                            longIndex += c;
+                        else {
+                            index = int.Parse(longIndex);
+                            isNumbertaken = true;
+                            continue;
+                        }
+                    }
+                    else {
+                        key = c.ToString();
+                        isKeyTaken = true;
+                    }
+                }
+            }
+        }
+
+        public static string GetStringFromKeys(OrderedDictionary dict) {
+            string text = "";
+            for (int i = 1; i < dict.Count; i++) {
+                text += GetKeyFromDictionary(dict, i);
+            }
+            return text;
         }
     }
 }
